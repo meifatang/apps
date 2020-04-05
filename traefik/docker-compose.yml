@@ -1,0 +1,28 @@
+version: '3.7'
+
+services:
+  traefik:
+    image: traefik #The official Traefik docker image
+    # container_name: traefik
+    restart: always
+    networks:
+      - wordpress
+      - woocommerce
+    ports:
+      - "80:80"     #The HTTP port
+      - "443:443"   #The HTTPS port
+      - "8080:8080" #The Web UI (enabled by --api)
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./traefik.toml:/traefik.toml
+      - ./acme.json:/acme.json
+    labels:
+      - traefik.http.routers.traefik.rule=Host(`traefik.tangmeifa.com`)
+      - traefik.http.routers.traefik.tls=true
+      - traefik.http.routers.traefik.tls.certresolver=myresolver
+
+networks:
+  wordpress:
+    external: true
+  woocommerce:
+    external: true

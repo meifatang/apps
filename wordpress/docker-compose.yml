@@ -1,0 +1,42 @@
+version: '3.7'
+
+services:
+  wordpress:
+    image: wordpress
+    restart: always
+    networks:
+      - wordpress
+    depends_on:
+      - db
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: exampleuser
+      WORDPRESS_DB_PASSWORD: examplepass
+      WORDPRESS_DB_NAME: exampledb
+    volumes:
+      - wp-data:/var/www/html
+    labels:
+      - traefik.http.routers.wordpress.rule=Host(`wp.tangmeifa.com`) || Host(`blog.tangmeifa.com`)
+      - traefik.http.routers.wordpress.tls=true
+      - traefik.http.routers.wordpress.tls.certresolver=myresolver
+
+  db:
+    image: mysql:5.7
+    restart: always
+    networks:
+      - wordpress
+    environment:
+      MYSQL_DATABASE: exampledb
+      MYSQL_USER: exampleuser
+      MYSQL_PASSWORD: examplepass
+      MYSQL_RANDOM_ROOT_PASSWORD: '1'
+    volumes:
+      - wp-db:/var/lib/mysql
+
+networks:
+  wordpress:
+    external: true
+
+volumes:
+  wp-data:
+  wp-db:

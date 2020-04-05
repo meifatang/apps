@@ -1,0 +1,41 @@
+version: '3.7'
+
+services:
+  odoo:
+    image: odoo:13.0
+    restart: always
+    ports:
+      - 8081:8069
+    networks:
+      - odoo
+    depends_on:
+      - db
+    volumes:
+      - odoo-data:/var/lib/odoo
+      - ./config:/etc/odoo
+      - ./addons:/mnt/extra-addons
+    # labels:
+    #   - traefik.http.routers.odoo.rule=Host(`odoo.tangmeifa.com`)
+    #   - traefik.http.routers.odoo.tls=true
+    #   - traefik.http.routers.odoo.tls.certresolver=myresolver
+
+  db:
+    image: postgres:10
+    restart: always
+    networks:
+      - odoo
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_PASSWORD=odoo
+      - POSTGRES_USER=odoo
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - odoo-db:/var/lib/postgresql/data/pgdata
+
+networks:
+  odoo:
+    external: true
+
+volumes:
+  odoo-data:
+  odoo-db:

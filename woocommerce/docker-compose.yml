@@ -1,0 +1,43 @@
+version: '3.7'
+
+services:
+  woocommerce:
+    build: .
+    image: meifatang/woocoomerce:latest
+    restart: always
+    networks:
+      - woocommerce
+    depends_on:
+      - db
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: exampleuser
+      WORDPRESS_DB_PASSWORD: examplepass
+      WORDPRESS_DB_NAME: exampledb
+    volumes:
+      - woo-data:/var/www/html
+    labels:
+      - traefik.http.routers.woocommerce.rule=Host(`woo.tangmeifa.com`) || Host(`tangmeifa.com`) || Host(`www.tangmeifa.com`)
+      - traefik.http.routers.woocommerce.tls=true
+      - traefik.http.routers.woocommerce.tls.certresolver=myresolver
+
+  db:
+    image: mysql:5.7
+    restart: always
+    networks:
+      - woocommerce
+    environment:
+      MYSQL_DATABASE: exampledb
+      MYSQL_USER: exampleuser
+      MYSQL_PASSWORD: examplepass
+      MYSQL_RANDOM_ROOT_PASSWORD: '1'
+    volumes:
+      - woo-db:/var/lib/mysql
+
+networks:
+  woocommerce:
+    external: true
+
+volumes:
+  woo-data:
+  woo-db:
